@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import {
   AppBar,
   Badge,
+  BottomNavigation,
+  BottomNavigationAction,
   Box,
+  Button,
   Chip,
   Drawer,
   IconButton,
   InputAdornment,
+  Link,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Paper,
   TextField,
   Toolbar,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
@@ -20,6 +26,7 @@ import {
   CloudDownload as DownloadIcon,
   GraphicEq as LogoIcon,
   Home as HomeIcon,
+  InstallMobile as InstallIcon,
   Key as KeyIcon,
   LibraryMusic as CollectionIcon,
   Menu as MenuIcon,
@@ -32,7 +39,9 @@ import {
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../app/store/hooks';
+import { usePwaInstall } from '../../hooks/usePwaInstall';
 import { MiniPlayer } from '../music/MiniPlayer';
+import { SeoHead } from './SeoHead';
 import { TokenSetupDialog } from './TokenSetupDialog';
 
 const DRAWER_WIDTH = 244;
@@ -55,12 +64,15 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings & Tokens', path: '/settings', icon: <SettingsIcon /> },
 ];
 
+const MOBILE_BOTTOM_PATHS = ['/', '/free-music', '/search', '/downloads', '/collection'];
+
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
   const [quickQuery, setQuickQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
+  const { canInstall, promptInstall } = usePwaInstall();
 
   const activeDownloads = useAppSelector(
     (s) =>
@@ -88,6 +100,10 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
     navigate(`/search?q=${encodeURIComponent(trimmed)}`);
   };
 
+  const bottomNavValue = MOBILE_BOTTOM_PATHS.includes(location.pathname)
+    ? location.pathname
+    : false;
+
   const drawerContent = (
     <Box
       sx={{
@@ -107,7 +123,10 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           gap: 1.5,
           cursor: 'pointer',
         }}
-        onClick={() => navigate('/')}
+        onClick={() => {
+          navigate('/');
+          setMobileOpen(false);
+        }}
       >
         <Box
           sx={{
@@ -128,7 +147,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             SONIC GRAB
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Legal Music &amp; MP3 SaaS
+            Ad-Free Music &amp; MP3s
           </Typography>
         </Box>
       </Box>
@@ -179,11 +198,37 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       </List>
 
       <Box sx={{ p: 2, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        {canInstall && (
+          <Button
+            fullWidth
+            size="small"
+            variant="outlined"
+            color="primary"
+            startIcon={<InstallIcon />}
+            onClick={() => void promptInstall()}
+            sx={{ mb: 1.25 }}
+          >
+            Install PWA App
+          </Button>
+        )}
         <Typography variant="caption" color="text.secondary" display="block">
-          Bring Your Own API Tokens
+          100% Ad-Free • BYOT SaaS
         </Typography>
-        <Typography variant="caption" color="primary.main" fontWeight={600}>
+        <Typography variant="caption" color="primary.main" fontWeight={600} display="block">
           Authorised Free MP3s Only
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.75 }}>
+          by AFO •{' '}
+          <Link
+            href="https://ameen.osperb.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            color="primary.main"
+            underline="hover"
+            fontWeight={600}
+          >
+            ameen.osperb.com
+          </Link>
         </Typography>
       </Box>
     </Box>
@@ -191,6 +236,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      <SeoHead />
+
       <Box
         component="nav"
         sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
@@ -232,28 +279,29 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           position="sticky"
           elevation={0}
           sx={{
-            bgcolor: 'rgba(11, 14, 20, 0.85)',
+            bgcolor: 'rgba(11, 14, 20, 0.88)',
             backdropFilter: 'blur(12px)',
             borderBottom: '1px solid rgba(255,255,255,0.08)',
           }}
         >
-          <Toolbar sx={{ gap: 2, justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, maxWidth: 560 }}>
+          <Toolbar sx={{ gap: { xs: 1, sm: 2 }, justifyContent: 'space-between', px: { xs: 1.5, sm: 2.5 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flex: 1, minWidth: 0, maxWidth: 560 }}>
               <IconButton
                 color="inherit"
                 edge="start"
                 onClick={() => setMobileOpen(true)}
                 sx={{ display: { md: 'none' } }}
+                aria-label="Open navigation menu"
               >
                 <MenuIcon />
               </IconButton>
-              <Box component="form" onSubmit={handleQuickSearch} sx={{ width: '100%' }}>
+              <Box component="form" onSubmit={handleQuickSearch} sx={{ width: '100%', minWidth: 0 }}>
                 <TextField
                   fullWidth
                   size="small"
                   value={quickQuery}
                   onChange={(e) => setQuickQuery(e.target.value)}
-                  placeholder="Search songs, artists, albums, or free CC MP3s..."
+                  placeholder="Search songs, artists, free MP3s..."
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -263,22 +311,44 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     sx: {
                       bgcolor: '#131823',
                       borderRadius: 2.5,
-                      fontSize: 14,
+                      fontSize: { xs: 13, sm: 14 },
                     },
                   }}
                 />
               </Box>
             </Box>
 
-            <Chip
-              icon={<KeyIcon fontSize="small" />}
-              label={`My API Tokens (${configuredTokenCount}/4)`}
-              size="small"
-              color={configuredTokenCount > 0 ? 'primary' : 'warning'}
-              variant="outlined"
-              onClick={() => setTokenDialogOpen(true)}
-              sx={{ cursor: 'pointer' }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+              {canInstall && (
+                <Tooltip title="Install SONIC GRAB App">
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={() => void promptInstall()}
+                    sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+                  >
+                    <InstallIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              <Chip
+                icon={<KeyIcon fontSize="small" />}
+                label={
+                  <Box component="span">
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                      My API Tokens{' '}
+                    </Box>
+                    ({configuredTokenCount}/4)
+                  </Box>
+                }
+                size="small"
+                color={configuredTokenCount > 0 ? 'primary' : 'warning'}
+                variant="outlined"
+                onClick={() => setTokenDialogOpen(true)}
+                sx={{ cursor: 'pointer' }}
+              />
+            </Box>
           </Toolbar>
         </AppBar>
 
@@ -286,8 +356,11 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           component="main"
           sx={{
             flex: 1,
-            p: { xs: 2, sm: 3 },
-            pb: hasPlayer ? 13 : 4,
+            p: { xs: 1.5, sm: 3 },
+            pb: {
+              xs: hasPlayer ? 18 : 10,
+              md: hasPlayer ? 13 : 4,
+            },
             maxWidth: 1480,
             width: '100%',
             mx: 'auto',
@@ -296,6 +369,68 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           {children}
         </Box>
       </Box>
+
+      {/* Mobile Bottom Navigation */}
+      <Paper
+        elevation={8}
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1150,
+          display: { xs: 'block', md: 'none' },
+          borderRadius: 0,
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          bgcolor: 'rgba(14, 18, 27, 0.96)',
+          backdropFilter: 'blur(12px)',
+          pb: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <BottomNavigation
+          value={bottomNavValue}
+          onChange={(_, newValue: string) => navigate(newValue)}
+          showLabels
+          sx={{
+            bgcolor: 'transparent',
+            height: 56,
+            '& .MuiBottomNavigationAction-root': {
+              minWidth: 0,
+              px: 0.5,
+              color: 'text.secondary',
+            },
+            '& .Mui-selected': {
+              color: '#00E5A3',
+            },
+          }}
+        >
+          <BottomNavigationAction label="Home" value="/" icon={<HomeIcon fontSize="small" />} />
+          <BottomNavigationAction
+            label="Free MP3"
+            value="/free-music"
+            icon={<FreeMusicIcon fontSize="small" />}
+          />
+          <BottomNavigationAction label="Search" value="/search" icon={<SearchIcon fontSize="small" />} />
+          <BottomNavigationAction
+            label="Downloads"
+            value="/downloads"
+            icon={
+              activeDownloads > 0 ? (
+                <Badge badgeContent={activeDownloads} color="primary">
+                  <DownloadIcon fontSize="small" />
+                </Badge>
+              ) : (
+                <DownloadIcon fontSize="small" />
+              )
+            }
+          />
+          <BottomNavigationAction
+            label="Library"
+            value="/collection"
+            icon={<CollectionIcon fontSize="small" />}
+          />
+        </BottomNavigation>
+      </Paper>
 
       <TokenSetupDialog
         open={tokenDialogOpen}

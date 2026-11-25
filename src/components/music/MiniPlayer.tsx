@@ -52,19 +52,19 @@ export const MiniPlayer: React.FC = () => {
       elevation={8}
       sx={{
         position: 'fixed',
-        bottom: 0,
-        left: { xs: 0, md: 248 },
+        bottom: { xs: 'calc(56px + env(safe-area-inset-bottom))', md: 0 },
+        left: { xs: 0, md: 244 },
         right: 0,
         zIndex: 1200,
-        px: 2.5,
-        py: 1.25,
+        px: { xs: 1.5, sm: 2.5 },
+        py: 1,
         borderRadius: 0,
         borderTop: '1px solid rgba(255,255,255,0.12)',
         bgcolor: 'rgba(14, 18, 27, 0.96)',
         backdropFilter: 'blur(14px)',
         display: 'flex',
         alignItems: 'center',
-        gap: 2,
+        gap: { xs: 1.25, sm: 2 },
       }}
     >
       <audio
@@ -78,17 +78,17 @@ export const MiniPlayer: React.FC = () => {
       <Avatar
         src={currentTrack.artworkUrl}
         variant="rounded"
-        sx={{ width: 46, height: 46 }}
+        sx={{ width: { xs: 40, sm: 46 }, height: { xs: 40, sm: 46 }, flexShrink: 0 }}
       >
         {currentTrack.title.slice(0, 1)}
       </Avatar>
 
-      <Box sx={{ minWidth: 140, maxWidth: 240 }}>
+      <Box sx={{ flex: { xs: 1, sm: 'initial' }, minWidth: 0, maxWidth: { sm: 240 } }}>
         <Typography variant="subtitle2" noWrap>
           {currentTrack.title}
         </Typography>
         <Typography variant="caption" color="text.secondary" noWrap display="block">
-          {currentTrack.artist} • {localBlobUrl ? 'Local MP3' : 'Preview Stream'}
+          {currentTrack.artist} • {localBlobUrl ? 'Local MP3' : 'Ad-Free Preview'}
         </Typography>
       </Box>
 

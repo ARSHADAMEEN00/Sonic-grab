@@ -1,0 +1,58 @@
+{
+  "name": "SONIC GRAB — Ad-Free Music Discovery & Legal MP3 Downloader",
+  "short_name": "SONIC GRAB",
+  "description": "Ad-free music discovery, zero-ads previews, and legal Creative Commons & Public Domain MP3 downloads.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0e14",
+  "theme_color": "#00E5A3",
+  "categories": ["music", "entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Discover Free MP3s",
+      "short_name": "Free MP3s",
+      "url": "/free-music",
+      "description": "Browse verified ad-free, legal CC & Public Domain MP3 downloads"
+    },
+    {
+      "name": "Unified Search",
+      "short_name": "Search",
+      "url": "/search",
+      "description": "Search songs, artists, albums, and downloadable MP3s"
+    },
+    {
+      "name": "Downloads",
+      "short_name": "Downloads",
+      "url": "/downloads",
+      "description": "View active MP3 downloads and history"
+    }
+  ]
+}

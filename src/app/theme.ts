@@ -26,11 +26,13 @@ export const sonicTheme = createTheme({
       fontFamily: "'Space Grotesk', 'Inter', sans-serif",
       fontWeight: 700,
       letterSpacing: '-0.02em',
+      fontSize: 'clamp(1.45rem, 4vw, 2.125rem)',
     },
     h5: {
       fontFamily: "'Space Grotesk', 'Inter', sans-serif",
       fontWeight: 700,
       letterSpacing: '-0.015em',
+      fontSize: 'clamp(1.15rem, 3vw, 1.5rem)',
     },
     h6: {
       fontFamily: "'Space Grotesk', 'Inter', sans-serif",
@@ -41,6 +43,14 @@ export const sonicTheme = createTheme({
     borderRadius: 12,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        'html, body': {
+          overflowX: 'hidden',
+          WebkitTapHighlightColor: 'transparent',
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {

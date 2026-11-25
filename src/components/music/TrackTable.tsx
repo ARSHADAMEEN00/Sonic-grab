@@ -4,6 +4,8 @@ import {
   Avatar,
   Box,
   Button,
+  Card,
+  CardContent,
   Checkbox,
   Chip,
   Collapse,
@@ -21,6 +23,8 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   CloudDone as DownloadedIcon,
@@ -63,6 +67,9 @@ export const TrackTable: React.FC<TrackTableProps> = ({
   compact = false,
   showBatchActions = true,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const dispatch = useAppDispatch();
   const showArtwork = useAppSelector((s) => s.settings.showArtwork);
   const favouriteIds = useAppSelector((s) => s.library.favouriteTrackIds);
@@ -159,6 +166,15 @@ export const TrackTable: React.FC<TrackTableProps> = ({
     }
   };
 
+  const toggleSelectTrack = (trackId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(trackId)) next.delete(trackId);
+      else next.add(trackId);
+      return next;
+    });
+  };
+
   const allFreeSelected =
     downloadableTracks.length > 0 &&
     selectedDownloadableTracks.length === downloadableTracks.length;
@@ -168,14 +184,14 @@ export const TrackTable: React.FC<TrackTableProps> = ({
       {showBatchActions && downloadableTracks.length > 0 && (
         <Paper
           sx={{
-            px: 2,
+            px: { xs: 1.5, sm: 2 },
             py: 1.25,
             mb: 1.25,
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 1.5,
+            gap: 1.25,
             bgcolor: 'rgba(0, 229, 163, 0.06)',
             border: '1px solid rgba(0, 229, 163, 0.22)',
           }}
@@ -197,8 +213,8 @@ export const TrackTable: React.FC<TrackTableProps> = ({
             />
             <Typography variant="body2" fontWeight={600}>
               {selectedDownloadableTracks.length > 0
-                ? `${selectedDownloadableTracks.length} of ${downloadableTracks.length} free MP3(s) selected`
-                : `${downloadableTracks.length} free MP3(s) available`}
+                ? `${selectedDownloadableTracks.length} / ${downloadableTracks.length} selected`
+                : `${downloadableTracks.length} free MP3(s)`}
             </Typography>
           </Stack>
 
@@ -212,7 +228,7 @@ export const TrackTable: React.FC<TrackTableProps> = ({
                   initiateDownloadWithDuplicateCheck(selectedDownloadableTracks)
                 }
               >
-                Download Selected ({selectedDownloadableTracks.length})
+                Download ({selectedDownloadableTracks.length})
               </Button>
             )}
             <Button
@@ -227,71 +243,82 @@ export const TrackTable: React.FC<TrackTableProps> = ({
         </Paper>
       )}
 
-      <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table size={compact ? 'small' : 'medium'} sx={{ tableLayout: 'fixed', width: '100%' }}>
-          <TableHead>
-            <TableRow>
-              {showBatchActions && downloadableTracks.length > 0 && (
-                <TableCell padding="checkbox" sx={{ width: 42 }} />
-              )}
-              <TableCell sx={{ width: 46 }}>#</TableCell>
-              <TableCell>Track</TableCell>
-              <TableCell sx={{ width: 165, display: { xs: 'none', lg: 'table-cell' } }}>
-                Album
-              </TableCell>
-              <TableCell sx={{ width: 145, display: { xs: 'none', sm: 'table-cell' } }}>
-                Status
-              </TableCell>
-              <TableCell sx={{ width: 62, display: { xs: 'none', xl: 'table-cell' } }}>
-                Time
-              </TableCell>
-              <TableCell align="right" sx={{ width: 186 }}>
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tracks.map((track, idx) => {
-              const isFav = favouriteIds.includes(track.id);
-              const isCurrent = currentTrack?.id === track.id;
-              const canDownload =
-                track.availability === 'FREE DOWNLOAD AVAILABLE' &&
-                Boolean(track.downloadInfo?.verified && track.downloadInfo?.downloadUrl);
-              const isExpanded = expandedId === track.id;
-              const isChecked = selectedIds.has(track.id);
-              const sig = `${track.artist.trim().toLowerCase()}::${track.title.trim().toLowerCase()}`;
-              const alreadyDownloaded =
-                downloadedIds.has(track.id) || downloadedSigs.has(sig);
+      {isMobile ? (
+        <Stack spacing={1.25}>
+          {tracks.map((track) => {
+            const isFav = favouriteIds.includes(track.id);
+            const isCurrent = currentTrack?.id === track.id;
+            const canDownload =
+              track.availability === 'FREE DOWNLOAD AVAILABLE' &&
+              Boolean(track.downloadInfo?.verified && track.downloadInfo?.downloadUrl);
+            const isExpanded = expandedId === track.id;
+            const isChecked = selectedIds.has(track.id);
+            const sig = `${track.artist.trim().toLowerCase()}::${track.title.trim().toLowerCase()}`;
+            const alreadyDownloaded =
+              downloadedIds.has(track.id) || downloadedSigs.has(sig);
 
-              return (
-                <React.Fragment key={track.id}>
-                  <TableRow hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
-                    {showBatchActions && downloadableTracks.length > 0 && (
-                      <TableCell padding="checkbox">
-                        {canDownload && (
-                          <Checkbox
+            return (
+              <Card key={track.id}>
+                <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                    {showBatchActions && canDownload && (
+                      <Checkbox
+                        size="small"
+                        checked={isChecked}
+                        onChange={() => toggleSelectTrack(track.id)}
+                        sx={{ p: 0.5 }}
+                      />
+                    )}
+                    {showArtwork && (
+                      <Avatar
+                        src={track.artworkUrl}
+                        variant="rounded"
+                        imgProps={{ loading: 'lazy' }}
+                        sx={{ width: 46, height: 46, bgcolor: '#1D2536', flexShrink: 0 }}
+                      >
+                        {track.title.slice(0, 1)}
+                      </Avatar>
+                    )}
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body2" fontWeight={700} noWrap>
+                        {track.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" noWrap display="block">
+                        {track.artist} • {track.provider}
+                      </Typography>
+                      <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
+                        <AvailabilityBadge availability={track.availability} compact />
+                        {alreadyDownloaded && (
+                          <Chip
+                            icon={<DownloadedIcon />}
+                            label="Downloaded"
                             size="small"
-                            checked={isChecked}
-                            onChange={() => {
-                              setSelectedIds((prev) => {
-                                const next = new Set(prev);
-                                if (next.has(track.id)) next.delete(track.id);
-                                else next.add(track.id);
-                                return next;
-                              });
-                            }}
+                            color="info"
+                            variant="outlined"
+                            sx={{ height: 20, fontSize: 10 }}
                           />
                         )}
-                      </TableCell>
-                    )}
+                      </Box>
+                    </Box>
+                  </Box>
 
-                    <TableCell sx={{ px: 1 }}>
-                      {track.previewUrl ? (
+                  <Box
+                    sx={{
+                      mt: 1.25,
+                      pt: 1,
+                      borderTop: '1px solid rgba(255,255,255,0.06)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 1,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                      {track.previewUrl && (
                         <IconButton
                           size="small"
                           color={isCurrent && isPlaying ? 'primary' : 'default'}
                           onClick={() => handlePlay(track)}
-                          aria-label={`Preview ${track.title}`}
                         >
                           {isCurrent && isPlaying ? (
                             <PauseIcon fontSize="small" />
@@ -299,206 +326,365 @@ export const TrackTable: React.FC<TrackTableProps> = ({
                             <PlayIcon fontSize="small" />
                           )}
                         </IconButton>
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">
-                          {idx + 1}
-                        </Typography>
                       )}
-                    </TableCell>
+                      <IconButton
+                        size="small"
+                        color={isFav ? 'error' : 'default'}
+                        onClick={() => dispatch(toggleFavouriteTrack(track))}
+                      >
+                        {isFav ? <FavIcon fontSize="small" /> : <FavBorderIcon fontSize="small" />}
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          setPlaylistMenuAnchor(e.currentTarget);
+                          setMenuTrack(track);
+                        }}
+                      >
+                        <PlaylistAddIcon fontSize="small" />
+                      </IconButton>
+                      {canDownload && (
+                        <IconButton
+                          size="small"
+                          onClick={() => setExpandedId(isExpanded ? null : track.id)}
+                        >
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
 
-                    <TableCell sx={{ overflow: 'hidden' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
-                        {showArtwork && (
-                          <Avatar
-                            src={track.artworkUrl}
-                            variant="rounded"
-                            imgProps={{ loading: 'lazy' }}
-                            sx={{ width: 40, height: 40, bgcolor: '#1D2536', flexShrink: 0 }}
-                          >
-                            {track.title.slice(0, 1)}
-                          </Avatar>
-                        )}
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                            <Typography variant="body2" fontWeight={600} noWrap>
-                              {track.title}
-                            </Typography>
-                            {alreadyDownloaded && (
-                              <Chip
-                                icon={<DownloadedIcon />}
-                                label="Downloaded"
-                                size="small"
-                                color="info"
-                                variant="outlined"
-                                sx={{ height: 18, fontSize: 10 }}
-                              />
-                            )}
-                          </Box>
-                          <Typography variant="caption" color="text.secondary" noWrap display="block">
-                            {track.artist} • {track.provider}
-                            {track.genre ? ` • ${track.genre}` : ''}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-
-                    <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' }, overflow: 'hidden' }}>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {track.album}
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                      <AvailabilityBadge availability={track.availability} compact />
-                    </TableCell>
-
-                    <TableCell sx={{ display: { xs: 'none', xl: 'table-cell' } }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatDuration(track.durationSec)}
-                      </Typography>
-                    </TableCell>
-
-                    <TableCell align="right" sx={{ whiteSpace: 'nowrap', px: 1 }}>
-                      <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25 }}>
-                        <Tooltip title={isFav ? 'Remove from Favourites' : 'Add to Favourites'}>
-                          <IconButton
-                            size="small"
-                            color={isFav ? 'error' : 'default'}
-                            onClick={() => dispatch(toggleFavouriteTrack(track))}
-                          >
-                            {isFav ? <FavIcon fontSize="small" /> : <FavBorderIcon fontSize="small" />}
-                          </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Add to Playlist">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              setPlaylistMenuAnchor(e.currentTarget);
-                              setMenuTrack(track);
-                            }}
-                          >
-                            <PlaylistAddIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-
-                        {canDownload ? (
-                          <>
-                            <Tooltip title="Licence & file details">
-                              <IconButton
-                                size="small"
-                                onClick={() => setExpandedId(isExpanded ? null : track.id)}
-                              >
-                                <InfoIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Button
-                              size="small"
-                              variant={alreadyDownloaded ? 'outlined' : 'contained'}
-                              startIcon={<DownloadIcon fontSize="small" />}
-                              onClick={() => initiateDownloadWithDuplicateCheck([track])}
-                              sx={{ ml: 0.5, px: 1.25, minWidth: 68, fontSize: 12 }}
-                            >
-                              {alreadyDownloaded ? 'Again' : 'MP3'}
-                            </Button>
-                          </>
-                        ) : (
-                          <Tooltip title="Open original provider page">
-                            <IconButton
-                              size="small"
-                              component="a"
-                              href={track.sourceUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                    {canDownload ? (
+                      <Button
+                        size="small"
+                        variant={alreadyDownloaded ? 'outlined' : 'contained'}
+                        startIcon={<DownloadIcon fontSize="small" />}
+                        onClick={() => initiateDownloadWithDuplicateCheck([track])}
+                      >
+                        {alreadyDownloaded ? 'Again' : 'MP3'}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        endIcon={<ExternalIcon fontSize="small" />}
+                        href={track.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Source
+                      </Button>
+                    )}
+                  </Box>
 
                   {canDownload && track.downloadInfo && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={7}
-                        sx={{ py: 0, borderBottom: isExpanded ? undefined : 0 }}
+                    <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                      <Box
+                        sx={{
+                          mt: 1.25,
+                          p: 1.25,
+                          borderRadius: 2,
+                          bgcolor: 'rgba(0, 229, 163, 0.05)',
+                          border: '1px solid rgba(0, 229, 163, 0.2)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 0.75,
+                        }}
                       >
-                        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                          <Box
-                            sx={{
-                              p: 2,
-                              my: 1,
-                              borderRadius: 2,
-                              bgcolor: 'rgba(0, 229, 163, 0.05)',
-                              border: '1px solid rgba(0, 229, 163, 0.2)',
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              gap: 2.5,
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                  Provider
-                                </Typography>
-                                <Typography variant="body2" fontWeight={600}>
-                                  {track.downloadInfo.providerName}
-                                </Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                  Licence
-                                </Typography>
-                                <Typography variant="body2" fontWeight={600}>
-                                  {track.downloadInfo.licence}
-                                </Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                  Format / Quality
-                                </Typography>
-                                <Typography variant="body2" fontWeight={600}>
-                                  {track.downloadInfo.format}
-                                  {track.downloadInfo.audioQuality
-                                    ? ` (${track.downloadInfo.audioQuality})`
-                                    : ''}
-                                </Typography>
-                              </Box>
-                              <Box>
-                                <Typography variant="caption" color="text.secondary">
-                                  File Size
-                                </Typography>
-                                <Typography variant="body2" fontWeight={600}>
-                                  {formatBytes(track.downloadInfo.fileSizeBytes)}
-                                </Typography>
-                              </Box>
-                            </Box>
+                        <Typography variant="caption">
+                          <strong>Provider:</strong> {track.downloadInfo.providerName}
+                        </Typography>
+                        <Typography variant="caption">
+                          <strong>Licence:</strong> {track.downloadInfo.licence}
+                        </Typography>
+                        <Typography variant="caption">
+                          <strong>Format:</strong> {track.downloadInfo.format} •{' '}
+                          {formatBytes(track.downloadInfo.fileSizeBytes)}
+                        </Typography>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          endIcon={<ExternalIcon fontSize="small" />}
+                          href={track.downloadInfo.sourcePageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Original Source Link
+                        </Button>
+                      </Box>
+                    </Collapse>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </Stack>
+      ) : (
+        <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto' }}>
+          <Table size={compact ? 'small' : 'medium'} sx={{ tableLayout: 'fixed', width: '100%' }}>
+            <TableHead>
+              <TableRow>
+                {showBatchActions && downloadableTracks.length > 0 && (
+                  <TableCell padding="checkbox" sx={{ width: 42 }} />
+                )}
+                <TableCell sx={{ width: 46 }}>#</TableCell>
+                <TableCell>Track</TableCell>
+                <TableCell sx={{ width: 165, display: { xs: 'none', lg: 'table-cell' } }}>
+                  Album
+                </TableCell>
+                <TableCell sx={{ width: 145, display: { xs: 'none', sm: 'table-cell' } }}>
+                  Status
+                </TableCell>
+                <TableCell sx={{ width: 62, display: { xs: 'none', xl: 'table-cell' } }}>
+                  Time
+                </TableCell>
+                <TableCell align="right" sx={{ width: 186 }}>
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tracks.map((track, idx) => {
+                const isFav = favouriteIds.includes(track.id);
+                const isCurrent = currentTrack?.id === track.id;
+                const canDownload =
+                  track.availability === 'FREE DOWNLOAD AVAILABLE' &&
+                  Boolean(track.downloadInfo?.verified && track.downloadInfo?.downloadUrl);
+                const isExpanded = expandedId === track.id;
+                const isChecked = selectedIds.has(track.id);
+                const sig = `${track.artist.trim().toLowerCase()}::${track.title.trim().toLowerCase()}`;
+                const alreadyDownloaded =
+                  downloadedIds.has(track.id) || downloadedSigs.has(sig);
 
-                            <Button
+                return (
+                  <React.Fragment key={track.id}>
+                    <TableRow hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                      {showBatchActions && downloadableTracks.length > 0 && (
+                        <TableCell padding="checkbox">
+                          {canDownload && (
+                            <Checkbox
                               size="small"
-                              variant="outlined"
-                              endIcon={<ExternalIcon fontSize="small" />}
-                              href={track.downloadInfo.sourcePageUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              checked={isChecked}
+                              onChange={() => toggleSelectTrack(track.id)}
+                            />
+                          )}
+                        </TableCell>
+                      )}
+
+                      <TableCell sx={{ px: 1 }}>
+                        {track.previewUrl ? (
+                          <IconButton
+                            size="small"
+                            color={isCurrent && isPlaying ? 'primary' : 'default'}
+                            onClick={() => handlePlay(track)}
+                            aria-label={`Preview ${track.title}`}
+                          >
+                            {isCurrent && isPlaying ? (
+                              <PauseIcon fontSize="small" />
+                            ) : (
+                              <PlayIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        ) : (
+                          <Typography variant="caption" color="text.secondary">
+                            {idx + 1}
+                          </Typography>
+                        )}
+                      </TableCell>
+
+                      <TableCell sx={{ overflow: 'hidden' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                          {showArtwork && (
+                            <Avatar
+                              src={track.artworkUrl}
+                              variant="rounded"
+                              imgProps={{ loading: 'lazy' }}
+                              sx={{ width: 40, height: 40, bgcolor: '#1D2536', flexShrink: 0 }}
                             >
-                              Original Source Link
-                            </Button>
+                              {track.title.slice(0, 1)}
+                            </Avatar>
+                          )}
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                              <Typography variant="body2" fontWeight={600} noWrap>
+                                {track.title}
+                              </Typography>
+                              {alreadyDownloaded && (
+                                <Chip
+                                  icon={<DownloadedIcon />}
+                                  label="Downloaded"
+                                  size="small"
+                                  color="info"
+                                  variant="outlined"
+                                  sx={{ height: 18, fontSize: 10 }}
+                                />
+                              )}
+                            </Box>
+                            <Typography variant="caption" color="text.secondary" noWrap display="block">
+                              {track.artist} • {track.provider}
+                              {track.genre ? ` • ${track.genre}` : ''}
+                            </Typography>
                           </Box>
-                        </Collapse>
+                        </Box>
+                      </TableCell>
+
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' }, overflow: 'hidden' }}>
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {track.album}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                        <AvailabilityBadge availability={track.availability} compact />
+                      </TableCell>
+
+                      <TableCell sx={{ display: { xs: 'none', xl: 'table-cell' } }}>
+                        <Typography variant="caption" color="text.secondary">
+                          {formatDuration(track.durationSec)}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell align="right" sx={{ whiteSpace: 'nowrap', px: 1 }}>
+                        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25 }}>
+                          <Tooltip title={isFav ? 'Remove from Favourites' : 'Add to Favourites'}>
+                            <IconButton
+                              size="small"
+                              color={isFav ? 'error' : 'default'}
+                              onClick={() => dispatch(toggleFavouriteTrack(track))}
+                            >
+                              {isFav ? <FavIcon fontSize="small" /> : <FavBorderIcon fontSize="small" />}
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="Add to Playlist">
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                setPlaylistMenuAnchor(e.currentTarget);
+                                setMenuTrack(track);
+                              }}
+                            >
+                              <PlaylistAddIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+
+                          {canDownload ? (
+                            <>
+                              <Tooltip title="Licence & file details">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => setExpandedId(isExpanded ? null : track.id)}
+                                >
+                                  <InfoIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Button
+                                size="small"
+                                variant={alreadyDownloaded ? 'outlined' : 'contained'}
+                                startIcon={<DownloadIcon fontSize="small" />}
+                                onClick={() => initiateDownloadWithDuplicateCheck([track])}
+                                sx={{ ml: 0.5, px: 1.25, minWidth: 68, fontSize: 12 }}
+                              >
+                                {alreadyDownloaded ? 'Again' : 'MP3'}
+                              </Button>
+                            </>
+                          ) : (
+                            <Tooltip title="Open original provider page">
+                              <IconButton
+                                size="small"
+                                component="a"
+                                href={track.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
                       </TableCell>
                     </TableRow>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+                    {canDownload && track.downloadInfo && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          sx={{ py: 0, borderBottom: isExpanded ? undefined : 0 }}
+                        >
+                          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                            <Box
+                              sx={{
+                                p: 2,
+                                my: 1,
+                                borderRadius: 2,
+                                bgcolor: 'rgba(0, 229, 163, 0.05)',
+                                border: '1px solid rgba(0, 229, 163, 0.2)',
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 2.5,
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Provider
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {track.downloadInfo.providerName}
+                                  </Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Licence
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {track.downloadInfo.licence}
+                                  </Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Format / Quality
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {track.downloadInfo.format}
+                                    {track.downloadInfo.audioQuality
+                                      ? ` (${track.downloadInfo.audioQuality})`
+                                      : ''}
+                                  </Typography>
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" color="text.secondary">
+                                    File Size
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {formatBytes(track.downloadInfo.fileSizeBytes)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                endIcon={<ExternalIcon fontSize="small" />}
+                                href={track.downloadInfo.sourcePageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Original Source Link
+                              </Button>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       <Menu
         anchorEl={playlistMenuAnchor}
