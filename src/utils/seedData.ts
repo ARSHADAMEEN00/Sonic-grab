@@ -1,0 +1,147 @@
+import type { Album, AppSettings, ArtistEntry, Playlist, Track } from '../types/music';
+
+export const SEEDED_ARTISTS: ArtistEntry[] = [
+  // International (17)
+  { id: 'artist-dua-lipa', name: 'Dua Lipa', category: 'international', primaryLanguage: 'English', genres: ['Pop', 'Dance'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-morgan-wallen', name: 'Morgan Wallen', category: 'international', primaryLanguage: 'English', genres: ['Country'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-olivia-rodrigo', name: 'Olivia Rodrigo', category: 'international', primaryLanguage: 'English', genres: ['Pop', 'Alternative'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-ella-langley', name: 'Ella Langley', category: 'international', primaryLanguage: 'English', genres: ['Country'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-lil-baby', name: 'Lil Baby', category: 'international', primaryLanguage: 'English', genres: ['Hip-Hop'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-drake', name: 'Drake', category: 'international', primaryLanguage: 'English', genres: ['Hip-Hop', 'R&B'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-bad-bunny', name: 'Bad Bunny', category: 'international', primaryLanguage: 'Other', genres: ['Latin', 'Reggaeton'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-karol-g', name: 'KAROL G', category: 'international', primaryLanguage: 'Other', genres: ['Latin', 'Pop'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-the-weeknd', name: 'The Weeknd', category: 'international', primaryLanguage: 'English', genres: ['R&B', 'Pop'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-taylor-swift', name: 'Taylor Swift', category: 'international', primaryLanguage: 'English', genres: ['Pop'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-billie-eilish', name: 'Billie Eilish', category: 'international', primaryLanguage: 'English', genres: ['Alternative', 'Pop'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-dangelo', name: "D'Angelo", category: 'international', primaryLanguage: 'English', genres: ['Neo-Soul', 'R&B'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-rosalia', name: 'ROSALÍA', category: 'international', primaryLanguage: 'Other', genres: ['Latin', 'Flamenco Pop'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-kendrick-lamar', name: 'Kendrick Lamar', category: 'international', primaryLanguage: 'English', genres: ['Hip-Hop'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-nirvana', name: 'Nirvana', category: 'international', primaryLanguage: 'English', genres: ['Rock', 'Grunge'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-frank-ocean', name: 'Frank Ocean', category: 'international', primaryLanguage: 'English', genres: ['R&B', 'Alternative'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-the-smiths', name: 'The Smiths', category: 'international', primaryLanguage: 'English', genres: ['Indie Rock', 'Alternative'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+
+  // Indian Artists & Composers (13)
+  { id: 'artist-anirudh', name: 'Anirudh Ravichander', category: 'indian', primaryLanguage: 'Tamil', genres: ['Film', 'Soundtrack', 'Pop'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-karan-aujla', name: 'Karan Aujla', category: 'indian', primaryLanguage: 'Hindi', genres: ['Punjabi', 'Hip-Hop'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-sushin-shyam', name: 'Sushin Shyam', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Film', 'Electronic', 'Soundtrack'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-shashwat-sachdev', name: 'Shashwat Sachdev', category: 'indian', primaryLanguage: 'Hindi', genres: ['Film', 'Electronic'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-krsna', name: 'KR$NA', category: 'indian', primaryLanguage: 'Hindi', genres: ['Desi Hip-Hop', 'Rap'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-seedhe-maut', name: 'Seedhe Maut', category: 'indian', primaryLanguage: 'Hindi', genres: ['Desi Hip-Hop', 'Rap'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-kj-yesudas', name: 'K. J. Yesudas', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Classical', 'Playback'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-ks-chithra', name: 'K. S. Chithra', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Classical', 'Playback'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-vidyasagar', name: 'Vidyasagar', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Film', 'Soundtrack'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-johnson', name: 'Johnson', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Film', 'Classical'], favourite: true, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-jakes-bejoy', name: 'Jakes Bejoy', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Film', 'Soundtrack'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-vishnu-vijay', name: 'Vishnu Vijay', category: 'indian', primaryLanguage: 'Malayalam', genres: ['Film', 'Indie'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+  { id: 'artist-justin-prabhakaran', name: 'Justin Prabhakaran', category: 'indian', primaryLanguage: 'Tamil', genres: ['Film', 'Melody'], favourite: false, addedAt: '2026-01-01T00:00:00.000Z' },
+];
+
+export const DEFAULT_PLAYLIST: Playlist = {
+  id: 'saved-collection',
+  name: 'Saved Collection',
+  description: 'Your personal collection of discovered tracks and free MP3s',
+  trackIds: [],
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+  isDefault: true,
+};
+
+export const DEFAULT_SETTINGS: AppSettings = {
+  preferredLanguages: ['English', 'Malayalam', 'Hindi', 'Tamil', 'Arabic'],
+  defaultPlaylistId: DEFAULT_PLAYLIST.id,
+  maxConcurrentDownloads: 3,
+  showArtwork: true,
+  credentials: {
+    jamendoClientId: (import.meta.env.VITE_JAMENDO_CLIENT_ID as string | undefined) ?? '',
+    appleMusicDeveloperToken: (import.meta.env.VITE_APPLE_MUSIC_TOKEN as string | undefined) ?? '',
+    spotifyAccessToken: (import.meta.env.VITE_SPOTIFY_ACCESS_TOKEN as string | undefined) ?? '',
+    soundcloudClientId: (import.meta.env.VITE_SOUNDCLOUD_CLIENT_ID as string | undefined) ?? '',
+  },
+};
+
+export const SAMPLE_GLOBAL_TRACKS: Track[] = [
+  {
+    id: 'sample-global-1',
+    title: 'Midnight Drive (Sample Discovery)',
+    artist: 'The Weeknd',
+    album: 'Sample Discovery Metadata',
+    durationSec: 214,
+    releaseDate: '2025-01-31',
+    genre: 'Pop',
+    language: 'English',
+    region: 'global',
+    sourceUrl: 'https://music.apple.com',
+    provider: 'apple-music',
+    availability: 'STREAMING ONLY',
+    popularityScore: 95,
+    isSampleFallback: true,
+  },
+  {
+    id: 'sample-global-2',
+    title: 'Radical Optimism (Sample Discovery)',
+    artist: 'Dua Lipa',
+    album: 'Sample Discovery Metadata',
+    durationSec: 192,
+    releaseDate: '2024-05-03',
+    genre: 'Dance',
+    language: 'English',
+    region: 'global',
+    sourceUrl: 'https://music.apple.com',
+    provider: 'apple-music',
+    availability: 'STREAMING ONLY',
+    popularityScore: 91,
+    isSampleFallback: true,
+  },
+];
+
+export const SAMPLE_INDIA_TRACKS: Track[] = [
+  {
+    id: 'sample-india-1',
+    title: 'Illuminati (Sample Discovery)',
+    artist: 'Sushin Shyam',
+    album: 'Aavesham (Sample)',
+    durationSec: 208,
+    releaseDate: '2024-04-05',
+    genre: 'Film',
+    language: 'Malayalam',
+    region: 'india',
+    sourceUrl: 'https://music.apple.com',
+    provider: 'apple-music',
+    availability: 'STREAMING ONLY',
+    popularityScore: 96,
+    isSampleFallback: true,
+  },
+  {
+    id: 'sample-india-2',
+    title: 'Softly (Sample Discovery)',
+    artist: 'Karan Aujla',
+    album: 'Making Memories (Sample)',
+    durationSec: 155,
+    releaseDate: '2023-08-18',
+    genre: 'Punjabi',
+    language: 'Hindi',
+    region: 'india',
+    sourceUrl: 'https://music.apple.com',
+    provider: 'apple-music',
+    availability: 'STREAMING ONLY',
+    popularityScore: 93,
+    isSampleFallback: true,
+  },
+];
+
+export const SAMPLE_ALBUMS: Album[] = [
+  {
+    id: 'sample-album-1',
+    title: 'GNX (Sample Metadata)',
+    artist: 'Kendrick Lamar',
+    releaseDate: '2024-11-22',
+    genre: 'Hip-Hop',
+    language: 'English',
+    region: 'global',
+    trackCount: 12,
+    sourceUrl: 'https://musicbrainz.org',
+    provider: 'musicbrainz',
+    availability: 'DOWNLOAD NOT VERIFIED',
+    isSampleFallback: true,
+  },
+];
